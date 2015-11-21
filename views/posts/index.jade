@@ -1,0 +1,19 @@
+extends ../layout
+
+block content
+  h1.
+    #{title}
+  ul
+    - each post, i in posts
+      li
+        = post.title + ", "
+        = post.body + ", "
+        = post._id
+        form(action='/posts/#{post._id}/edit', method='post', enctype='application/x-www-form-urlencoded')
+          input(type='hidden', value='DELETE', name='_method')
+          button(type='submit').
+            Delete
+          p
+            a(href='/posts/#{post._id}/edit') Edit
+          p
+            a(href='/posts/#{post._id}') Show

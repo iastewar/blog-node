@@ -1,0 +1,28 @@
+extends ../layout
+
+block content
+    h1.
+      Post #{post._id}
+    p Title: #{post.title}
+    p Body: #{post.body}
+
+    h2.
+      Add a Comment
+
+    form#formAddComment(name="addcomment",method="post",action="/posts/#{post._id}/comments")
+        p Body:
+            input#inputBody(type="text", placeholder="ex. this is a comment", name="body")
+        p
+            button#btnSubmit(type="submit") submit
+
+    h2.
+      Comments
+
+    ul
+      - each comment, i in comments
+        li
+          = comment.body
+          form(action='/posts/#{post._id}/comments/#{comment._id}/edit', method='post', enctype='application/x-www-form-urlencoded')
+            input(type='hidden', value='DELETE', name='_method')
+            button(type='submit').
+              Delete
