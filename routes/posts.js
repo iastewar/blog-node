@@ -87,16 +87,22 @@ router.route('/')
   .post(function(req, res) {
     var title = req.body.title;
     var body = req.body.body;
+    var user = req.user;
     // call the create function for our database
     mongoose.model('Post').create({
       title : title,
-      body : body
+      body : body,
+      user : user
     }, function (err, post) {
       if (err) {
         res.send("There was a problem adding the information to the database");
       } else {
         // Post has been created
         console.log('POST creating new post: ' + post);
+
+        user.posts.push(post);
+        user.save();
+
         res.format({
           html: function() {
             res.location("posts");
@@ -149,18 +155,29 @@ router.route('/:id')
         console.log('GET Error: There was a problem retrieving: ' + err);
       } else {
         console.log('GET Retrieving ID: ' + post._id);
-        res.format({
-          html: function(){
-            res.render('posts/show.ejs', {
-              post: post,
-              comments: post.comments,
-              user: req.user
-            });
-          },
-          json: function(){
-            res.json(post);
-          }
-        });
+        mongoose.model('User').findById(post.user, function(err, author) {
+          // var commentObjs = [];
+          // for (var i = 0; i < post.comments.length; i++) {
+          //   mongoose.model('Comment').findById(post.comments[i], function(err, comment) {
+          //     commentObjs.push(comment);
+          //   })
+          // }
+
+          res.format({
+            html: function(){
+              res.render('posts/show.ejs', {
+                post: post,
+                comments: post.comments,
+                user: req.user,
+                author: author
+              });
+            },
+            json: function(){
+              res.json(post);
+            }
+          });
+        })
+
       }
     });
   });
@@ -173,6 +190,9 @@ router.get('/:id/edit', function(req, res) {
     } else {
       // return the post
       console.log("GET Retrieving ID: " + post._id);
+
+      if (!post.user.equals(req.user._id))
+        return res.redirect("/posts/" +  post._id);
 
       res.format({
         //HTML response renders the 'edit.jade' template
@@ -197,6 +217,10 @@ router.put('/:id/edit', function(req, res) {
     var body = req.body.body;
 
         mongoose.model('Post').findById(req.id, function (err, post) {
+
+            if (!post.user.equals(req.user._id))
+              return res.redirect("/posts/" +  post._id);
+
             //update it
             post.update({
                 title : title,
@@ -228,6 +252,17 @@ router.delete('/:id/edit', function (req, res){
         if (err) {
             return console.error(err);
         } else {
+
+            if (!post.user.equals(req.user._id))
+              return res.redirect("/posts/" +  post._id);
+
+            for (var i = 0; i < user.posts.length; i++) {
+              if (user.posts[i].toString() === id) {
+                user.posts.splice(i, 1);
+                break;
+              }
+            }
+
             //remove it from Mongo
             post.remove(function (err, post) {
                 if (err) {
@@ -257,6 +292,7 @@ router.delete('/:id/edit', function (req, res){
 router.post('/:post_id/comments', function(req, res) {
     var body = req.body.body;
     var post_id = req.params.post_id;
+    var user = req.user;
 
     // call the create function for our database
     mongoose.model('Post').findById(post_id, function (err, post) {
@@ -266,18 +302,34 @@ router.post('/:post_id/comments', function(req, res) {
         // Post has been created
         console.log('GET Retrieving ID: ' + post._id);
 
-        post.comments.push({body : body});
-        post.save();
+        mongoose.model('Comment').create({
+          body: body,
+          post: post,
+          user: user
+        }, function(err, comment) {
+          if (err) {
+            return console.error(err);
+          } else {
+            post.comments.push(comment);
+            post.save();
 
-        res.format({
-          html: function() {
-            //res.location("posts");
-            res.redirect("/posts/" + post_id);
-          },
-          json: function() {
-            res.json(post);
+            user.comments.push(comment);
+            user.save();
+
+            res.format({
+              html: function() {
+                //res.location("posts");
+                res.redirect("/posts/" + post_id);
+              },
+              json: function() {
+                res.json(post);
+              }
+            });
           }
-        });
+
+        })
+
+
       }
     })
   });
@@ -286,28 +338,54 @@ router.post('/:post_id/comments', function(req, res) {
 router.delete('/:post_id/comments/:id/edit', function(req, res) {
   var post_id = req.params.post_id;
   var id  = req.params.id;
+  var user = req.user;
 
   mongoose.model('Post').findById(post_id, function(err, post) {
     if (err) {
       return console.error(err);
     } else {
-      for (var i = 0; i < post.comments.length; i++) {
-        if (post.comments[i]._id == id) {
-          post.comments.splice(i, 1);
-          break;
-        }
-      }
-      post.save();
 
-      res.format({
-        html: function() {
-          //res.location("posts");
-          res.redirect("/posts/" + post_id);
-        },
-        json: function() {
-          res.json(post);
+      mongoose.model('Comment').findOne({ '_id': id }, function(err, comment) {
+        if (!(comment.user.equals(user._id) || post.user.equals(user._id)))
+          return res.redirect("/posts/" + post_id);
+
+        for (var i = 0; i < post.comments.length; i++) {
+          if (post.comments[i].toString() === id) {
+            post.comments.splice(i, 1);
+            break;
+          }
         }
-      });
+
+        for (var i = 0; i < user.comments.length; i++) {
+          if (user.comments[i].toString() === id) {
+            user.comments.splice(i, 1);
+            break;
+          }
+        }
+
+        post.save();
+        user.save();
+
+        comment.remove(function(err, comment) {
+          if (err) {
+            return console.error(err);
+          } else {
+            res.format({
+              html: function() {
+                //res.location("posts");
+                res.redirect("/posts/" + post_id);
+              },
+              json: function() {
+                res.json(post);
+              }
+            });
+          }
+        })
+
+
+      })
+
+
     }
   });
 });

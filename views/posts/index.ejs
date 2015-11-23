@@ -6,6 +6,7 @@
       <% include ../_navbar %>
 
       <h1>All Posts</h1>
+      <a href='/posts/new' class='btn btn-primary'>New Post</a>
       <% posts.forEach(function(post){ %>
         <div class="well">
           <%= post.title %>

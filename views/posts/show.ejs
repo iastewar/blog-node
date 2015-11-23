@@ -7,6 +7,8 @@
 
       <h1><%= post.title %></h1>
       <p><%= post.body %></p>
+      <p>Created by: <%= author.email %> </p>
+
 
       <h2>Add a Comment</h2>
       <form method="post" action="/posts/<%= post._id %>/comments">
@@ -20,8 +22,8 @@
       <h2>Comments</h2>
       <% comments.forEach(function(comment){ %>
         <div class="well">
-          <%= comment.body %>
-          <form action='/posts/<%= post._id %>/comments/<%= comment._id %>/edit' method='post' class="pull-right">
+          <%= comment %>
+          <form action='/posts/<%= post._id %>/comments/<%= comment %>/edit' method='post' class="pull-right">
             <input type='hidden' value='DELETE' name='_method'>
             <input type='submit' value='Delete' class="btn btn-danger btn-sm">
           </form>
