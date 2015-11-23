@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <% include ../_head %>
+  <body>
+    <div class="container">
+      <% include ../_navbar %>
+
+      <h1><%= post.title %></h1>
+      <p><%= post.body %></p>
+
+      <h2>Add a Comment</h2>
+      <form method="post" action="/posts/<%= post._id %>/comments">
+        <div class="form-group">
+          <input type='text_area' name='body' class="form-control">
+        </div>
+
+        <input type='submit' value='Create Comment' class='btn btn-primary'>
+      </form>
+
+      <h2>Comments</h2>
+      <% comments.forEach(function(comment){ %>
+        <div class="well">
+          <%= comment.body %>
+          <form action='/posts/<%= post._id %>/comments/<%= comment._id %>/edit' method='post' class="pull-right">
+            <input type='hidden' value='DELETE' name='_method'>
+            <input type='submit' value='Delete' class="btn btn-danger btn-sm">
+          </form>
+        </div>
+      <% }) %>
+
+
+
+
+    <div>
+  </body>
+</html>

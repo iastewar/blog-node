@@ -1,0 +1,26 @@
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/" ><i class='glyphicon glyphicon-home'></i> Home</a>
+    </div>
+
+<!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <% if (user) { %>
+          <li> <a href="/users/logout">Log Out</a> </li>
+        <% } else { %>
+          <li> <a href="/users/signup">Sign Up</a> </li>
+          <li> <a href="/users/login">Log In</a> </li>
+        <% } %>
+      </ul>
+      <% if (user) { %>
+        <p class="navbar-text navbar-right">Signed in as <%= user.email %></p>
+      <% } %>
+    </div>
+  </div>
+</nav>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <% include ../_head %>
+  <body>
+    <div class="container">
+      <% include ../_navbar %>
+
+      <h1>All Posts</h1>
+      <% posts.forEach(function(post){ %>
+        <div class="well">
+          <%= post.title %>
+          <form action='/posts/<%= post._id %>/edit' method='post' class="pull-right">
+            <input type='hidden' value='DELETE' name='_method'>
+            <input type='submit' value='Delete' class="btn btn-danger btn-sm">
+          </form>
+          <a href='/posts/<%= post._id %>/edit' class="btn btn-info btn-sm pull-right">Edit</a>
+          <a href='/posts/<%= post._id %>' class="btn btn-primary btn-sm pull-right">Show</a>
+        </div>
+      <% }) %>
+    </div>
+  </body>
+</html>

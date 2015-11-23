@@ -2,7 +2,7 @@ extends ../layout
 
 block content
     h1.
-        #{title}
+        Add Post
     form#formAddPost(name="addpost",method="post",action="/posts")
         p Title:
             input#inputTitle(type="text", placeholder="ex. This is a title", name="title")

@@ -71,9 +71,9 @@ router.route('/')
       } else {
         res.format({
           html: function() {
-            res.render('posts/index', {
-              title: 'All Posts',
-              posts: posts
+            res.render('posts/index.ejs', {
+              posts: posts,
+              user: req.user
             });
           },
           json: function() {
@@ -112,7 +112,7 @@ router.route('/')
 
 // GET New Post page.
 router.get('/new', function(req, res) {
-  res.render('posts/new', {title: 'Add New Post'});
+  res.render('posts/new.ejs', {user: req.user});
 });
 
 
@@ -151,9 +151,10 @@ router.route('/:id')
         console.log('GET Retrieving ID: ' + post._id);
         res.format({
           html: function(){
-            res.render('posts/show', {
+            res.render('posts/show.ejs', {
               post: post,
-              comments: post.comments
+              comments: post.comments,
+              user: req.user
             });
           },
           json: function(){
@@ -176,9 +177,9 @@ router.get('/:id/edit', function(req, res) {
       res.format({
         //HTML response renders the 'edit.jade' template
         html: function() {
-          res.render('posts/edit', {
-            title: 'Post' + post._id,
-            post: post
+          res.render('posts/edit.ejs', {
+            post: post,
+            user: req.user
           });
         },
         json: function(){

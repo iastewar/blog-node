@@ -13,11 +13,11 @@ var express = require('express'),
 // });
 
 router.get('/login', function(req, res) {
-  res.render('users/login.ejs', { message: req.flash('loginMessage') });
+  res.render('users/login.ejs', { message: req.flash('loginMessage'), user: req.user});
 });
 
 router.get('/signup', function(req, res) {
-  res.render('users/signup.ejs', { message: req.flash('signupMessage') });
+  res.render('users/signup.ejs', { message: req.flash('signupMessage'), user: req.user});
 });
 
 router.post('/signup', passport.authenticate('local-signup', {
