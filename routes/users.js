@@ -24,7 +24,13 @@ router.post('/signup', passport.authenticate('local-signup', {
   successRedirect: '/',
   failureRedirect: '/users/signup',
   failureFlash: true
-}))
+}));
+
+router.post('/login', passport.authenticate('local-login', {
+  successRedirect: '/',
+  failureRedirect: '/users/login',
+  failureFlash: true
+}));
 
 router.get('/logout', function(req, res) {
   req.logout();

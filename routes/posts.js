@@ -2,7 +2,10 @@ var express = require('express'),
     router = express.Router(),
     mongoose = require('mongoose'), //mongo connection
     bodyParser = require('body-parser'), //parses information from POST
-    methodOverride = require('method-override'); //used to manipulate POST
+    methodOverride = require('method-override'), //used to manipulate POST
+    passport = require('passport'),
+    flash = require('connect-flash'),
+    session = require('express-session');
 
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(methodOverride(function(req, res){
@@ -13,6 +16,51 @@ router.use(methodOverride(function(req, res){
         return method
       }
 }));
+
+///// route middleware to make sure user is logged in
+router.post('/', function(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+
+  res.redirect('/users/login');
+})
+
+router.use('/new', function(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+
+  res.redirect('/users/login');
+})
+
+router.use('/:id/edit', function(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+
+  res.redirect('/users/login');
+})
+
+router.use('/:post_id/comments', function(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+
+  res.redirect('/users/login');
+})
+
+router.use('/:post_id/comments/:id/edit', function(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+
+  res.redirect('/users/login');
+})
+/////
+
+
+
 
 router.route('/')
   .get(function(req, res, next) {
@@ -25,7 +73,7 @@ router.route('/')
           html: function() {
             res.render('posts/index', {
               title: 'All Posts',
-              "posts": posts
+              posts: posts
             });
           },
           json: function() {
@@ -67,6 +115,7 @@ router.get('/new', function(req, res) {
   res.render('posts/new', {title: 'Add New Post'});
 });
 
+
 // route middleware to validate :id
 router.param('id', function(req, res, next, id) {
   // find the id in the database
@@ -103,8 +152,8 @@ router.route('/:id')
         res.format({
           html: function(){
             res.render('posts/show', {
-              "post": post,
-              "comments": post.comments
+              post: post,
+              comments: post.comments
             });
           },
           json: function(){
@@ -129,7 +178,7 @@ router.get('/:id/edit', function(req, res) {
         html: function() {
           res.render('posts/edit', {
             title: 'Post' + post._id,
-            "post": post
+            post: post
           });
         },
         json: function(){
