@@ -20,13 +20,16 @@
       </form>
 
       <h2>Comments</h2>
-      <% comments.forEach(function(comment){ %>
+      <% comments.forEach(function(commentObj){ %>
         <div class="well">
-          <%= comment %>
-          <form action='/posts/<%= post._id %>/comments/<%= comment %>/edit' method='post' class="pull-right">
+        <%= commentObj[0].body %>
+          <form action='/posts/<%= post._id %>/comments/<%= commentObj[0]._id %>/edit' method='post' class="pull-right">
             <input type='hidden' value='DELETE' name='_method'>
             <input type='submit' value='Delete' class="btn btn-danger btn-sm">
           </form>
+          <div class="pull-right owned">
+            <%= commentObj[1].email %>
+          </div>
         </div>
       <% }) %>
 

@@ -148,6 +148,17 @@ router.param('id', function(req, res, next, id) {
   });
 });
 
+
+var getComment = function(commentId) {
+  mongoose.model('Comment').findById(commentId, function(err, comment) {
+    if (err) {
+      return console.error(err);
+    } else {
+      return comment;
+    }
+  })
+}
+
 router.route('/:id')
   .get(function(req, res) {
     mongoose.model('Post').findById(req.id, function(err, post) {
@@ -156,26 +167,37 @@ router.route('/:id')
       } else {
         console.log('GET Retrieving ID: ' + post._id);
         mongoose.model('User').findById(post.user, function(err, author) {
-          // var commentObjs = [];
-          // for (var i = 0; i < post.comments.length; i++) {
-          //   mongoose.model('Comment').findById(post.comments[i], function(err, comment) {
-          //     commentObjs.push(comment);
-          //   })
-          // }
 
-          res.format({
-            html: function(){
-              res.render('posts/show.ejs', {
-                post: post,
-                comments: post.comments,
-                user: req.user,
-                author: author
-              });
-            },
-            json: function(){
-              res.json(post);
-            }
-          });
+          var commentObjs = [];
+          var createCommentObjs = function(commentObjs, callback) {
+            post.comments.forEach(function(commentId, index) {
+              mongoose.model('Comment').findById(commentId, function(err, comment) {
+                mongoose.model('User').findById(comment.user, function(err, user ) {
+                  commentObjs.push([comment, user]);
+                  if (index === post.comments.length - 1)
+                    callback();
+                })
+              })
+            })
+          }
+
+          createCommentObjs(commentObjs, function() {
+            res.format({
+              html: function(){
+                res.render('posts/show.ejs', {
+                  post: post,
+                  user: req.user,
+                  author: author,
+                  comments: commentObjs
+                });
+              },
+              json: function(){
+                res.json(post);
+              }
+            });
+          })
+
+
         })
 
       }
@@ -308,7 +330,7 @@ router.post('/:post_id/comments', function(req, res) {
           user: user
         }, function(err, comment) {
           if (err) {
-            return console.error(err);
+            res.send("There was a problem adding the information to the database");
           } else {
             post.comments.push(comment);
             post.save();

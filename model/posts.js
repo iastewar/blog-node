@@ -9,7 +9,7 @@ var postSchema = new mongoose.Schema({
 });
 
 var commentSchema = new mongoose.Schema({
-  body: String,
+  body: {type: String, required: true},
   post: {type: mongoose.Schema.Types.ObjectId, ref: 'Post'},
   user: {type: mongoose.Schema.Types.ObjectId, ref: 'User'}
 });
