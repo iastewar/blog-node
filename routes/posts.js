@@ -118,7 +118,7 @@ router.route('/')
 
 // GET New Post page.
 router.get('/new', function(req, res) {
-  res.render('posts/new.ejs', {user: req.user});
+  res.render('posts/_new.ejs', {user: req.user});
 });
 
 
