@@ -285,6 +285,13 @@ router.delete('/:id/edit', function (req, res){
               }
             }
 
+            // dependent destroy
+            for (var i = 0; i < post.comments; i++) {
+              mongoose.model('Comment').findById(post.comments[i], function(err, comment) {
+                comment.remove();
+              });
+            }
+
             //remove it from Mongo
             post.remove(function (err, post) {
                 if (err) {
