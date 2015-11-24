@@ -13,6 +13,7 @@ var express = require('express'),
 // });
 
 router.get('/login', function(req, res) {
+  res.status("unauthenticated");
   res.render('users/login.ejs', { message: req.flash('loginMessage'), user: req.user});
 });
 

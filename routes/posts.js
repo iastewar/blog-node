@@ -31,6 +31,7 @@ router.use('/new', function(req, res, next) {
     return next();
   }
 
+  res.status = "unauthenticated";
   res.redirect('/users/login');
 })
 
