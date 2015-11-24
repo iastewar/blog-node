@@ -170,15 +170,19 @@ router.route('/:id')
 
           var commentObjs = [];
           var createCommentObjs = function(commentObjs, callback) {
-            post.comments.forEach(function(commentId, index) {
-              mongoose.model('Comment').findById(commentId, function(err, comment) {
-                mongoose.model('User').findById(comment.user, function(err, user ) {
-                  commentObjs.push([comment, user]);
-                  if (index === post.comments.length - 1)
-                    callback();
+            if (post.comments.length > 0) {
+              post.comments.forEach(function(commentId, index) {
+                mongoose.model('Comment').findById(commentId, function(err, comment) {
+                  mongoose.model('User').findById(comment.user, function(err, user ) {
+                    commentObjs.push([comment, user]);
+                    if (index === post.comments.length - 1)
+                      callback();
+                  })
                 })
               })
-            })
+            } else {
+              callback();
+            }
           }
 
           createCommentObjs(commentObjs, function() {
@@ -269,24 +273,25 @@ router.put('/:id/edit', function(req, res) {
 
 //DELETE a Post by ID
 router.delete('/:id/edit', function (req, res){
+    var user = req.user;
     //find post by ID
     mongoose.model('Post').findById(req.id, function (err, post) {
         if (err) {
             return console.error(err);
         } else {
 
-            if (!post.user.equals(req.user._id))
+            if (!post.user.equals(user._id))
               return res.redirect("/posts/" +  post._id);
 
             for (var i = 0; i < user.posts.length; i++) {
-              if (user.posts[i].toString() === id) {
+              if (user.posts[i].toString() === req.id) {
                 user.posts.splice(i, 1);
                 break;
               }
             }
 
             // dependent destroy
-            for (var i = 0; i < post.comments; i++) {
+            for (var i = 0; i < post.comments.length; i++) {
               mongoose.model('Comment').findById(post.comments[i], function(err, comment) {
                 comment.remove();
               });
