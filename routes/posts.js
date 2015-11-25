@@ -31,8 +31,14 @@ router.use('/new', function(req, res, next) {
     return next();
   }
 
-  res.status = "unauthenticated";
-  res.redirect('/users/login');
+  var is_ajax_request = req.xhr;
+  if (is_ajax_request) {
+   res.writeHead(403);
+   res.end();
+  } else {
+   res.redirect('/users/login');
+  }
+
 })
 
 router.use('/:id/edit', function(req, res, next) {
