@@ -6,11 +6,7 @@
       <% include ../_navbar %>
 
       <h1>All Posts</h1>
-      <% if (user) { %>
-        <a href='/posts/new' class='btn btn-primary' id="new_post_btn">New Post</a>
-      <% } else { %>
-        <a href='/users/signup' class='btn btn-primary' id="new_post_btn">New Post</a>
-      <% } %>
+      <a href='/posts/new' class='btn btn-primary' id="new_post_btn">New Post</a>
 
       <div id="new_post_form"></div>
 
